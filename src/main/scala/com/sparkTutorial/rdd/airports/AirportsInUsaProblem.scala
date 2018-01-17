@@ -27,7 +27,7 @@ object AirportsInUsaProblem {
     sc.textFile("in/airports.text")
       .map(_.split(COMMA_DELIMITER))
       .filter(_ (3) == "\"United States\"")
-      .map(ss => Array(ss(1), ss(2)).mkString(","))
+      .map(ss => s"${ss(1)}, ${ss(2)}")
       .saveAsTextFile("out/airports_in_usa.text")
 
   }
