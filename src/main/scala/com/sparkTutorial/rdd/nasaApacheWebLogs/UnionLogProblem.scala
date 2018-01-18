@@ -17,14 +17,18 @@ object UnionLogProblem {
        Make sure the head lines are removed in the resulting RDD.
      */
 
-    val conf = new SparkConf().setAppName("nasaLogs").setMaster("local[2]")
+    val conf = new SparkConf().setAppName("nasaLogs").setMaster("local[*]")
     val sc = new SparkContext(conf)
 
     val june = sc.textFile("in/nasa_19950701.tsv")
     val august = sc.textFile("in/nasa_19950801.tsv")
+
+    val notHeader: String => Boolean =
+      line => !(line.startsWith("host") && line.endsWith("bytes"))
+
     (june union august)
       .sample(withReplacement = true, fraction = 0.1)
-      .filter(line => !(line.startsWith("host") && line.endsWith("bytes")))
+      .filter(notHeader)
       .saveAsTextFile("out/sample_nasa_logs.tsv")
 
   }
