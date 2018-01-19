@@ -1,5 +1,9 @@
 package com.sparkTutorial.pairRdd.filter
 
+import com.sparkTutorial.commons.Utils.COMMA_DELIMITER
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.{SparkConf, SparkContext}
+
 object AirportsNotInUsaProblem {
 
   def main(args: Array[String]) {
@@ -18,5 +22,15 @@ object AirportsNotInUsaProblem {
        ("Wewak Intl", "Papua New Guinea")
        ...
      */
+
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val conf = new SparkConf().setAppName("airports").setMaster("local[*]")
+    val sc = new SparkContext(conf)
+
+    sc.textFile("in/airports.text")
+      .map(_.split(COMMA_DELIMITER))
+      .map(ss => (ss(1), ss(3)))
+      .filter(_._2 != "\"United States\"")
+      .saveAsTextFile("out/airports_not_in_usa_pair_rdd.text")
   }
 }

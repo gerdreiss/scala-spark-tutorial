@@ -1,5 +1,9 @@
 package com.sparkTutorial.pairRdd.mapValues
 
+import com.sparkTutorial.commons.Utils.COMMA_DELIMITER
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.{SparkConf, SparkContext}
+
 object AirportsUppercaseProblem {
 
   def main(args: Array[String]) {
@@ -19,5 +23,15 @@ object AirportsUppercaseProblem {
        ("Wewak Intl", "PAPUA NEW GUINEA")
        ...
      */
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val conf = new SparkConf().setAppName("airports").setMaster("local[*]")
+    val sc = new SparkContext(conf)
+
+    sc.textFile("in/airports.text")
+      .map(_.split(COMMA_DELIMITER))
+      .map(ss => (ss(1), ss(3)))
+      .mapValues(_.toUpperCase())
+      .saveAsTextFile("out/airports_uppercase.text")
+
   }
 }
