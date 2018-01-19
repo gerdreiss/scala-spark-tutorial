@@ -22,7 +22,7 @@ object SameHostsProblem {
        Make sure the head lines are removed in the resulting RDD.
      */
 
-    val conf = new SparkConf().setAppName("nasaLogs").setMaster("local[2]")
+    val conf = new SparkConf().setAppName("nasaLogs").setMaster("local[1]")
     val sc = new SparkContext(conf)
 
     val extractHost: String => String = _.split("\t").head
