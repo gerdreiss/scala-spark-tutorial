@@ -13,10 +13,10 @@ object GroupByKeyVsReduceByKey {
     val words = List("one", "two", "two", "three", "three", "three")
     val wordsPairRdd = sc.parallelize(words).map(word => (word, 1))
 
-    val wordCountsWithReduceByKey = wordsPairRdd.reduceByKey((x, y) => x + y).collect()
+    val wordCountsWithReduceByKey = wordsPairRdd.reduceByKey(_ + _).collect()
     println("wordCountsWithReduceByKey: " + wordCountsWithReduceByKey.toList)
 
-    val wordCountsWithGroupByKey = wordsPairRdd.groupByKey().mapValues(intIterable => intIterable.size).collect()
+    val wordCountsWithGroupByKey = wordsPairRdd.groupByKey().mapValues(_.size).collect()
     println("wordCountsWithGroupByKey: " + wordCountsWithGroupByKey.toList)
   }
 }

@@ -1,6 +1,12 @@
 package com.sparkTutorial.pairRdd.groupbykey
 
+import com.sparkTutorial.commons.Utils.COMMA_DELIMITER
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
+
 object AirportsByCountryProblem {
+
 
   def main(args: Array[String]) {
 
@@ -18,5 +24,27 @@ object AirportsByCountryProblem {
        "Papua New Guinea",  List("Goroka", "Madang", ...)
        ...
      */
+
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val conf = new SparkConf().setAppName("nasaLogs").setMaster("local[1]")
+    val sc = new SparkContext(conf)
+
+    val cached: RDD[(String, String)] =
+      sc.textFile("in/airports.text")
+        .map(_.split(COMMA_DELIMITER))
+        .map(ss => (ss(3).replace("\"", ""), ss(1).replace("\"", "")))
+        .persist()
+
+    // use group by key
+    cached
+      .groupByKey()
+      .sortByKey()
+      .foreach(t => println(f"${t._1}%32s: ${t._2.mkString(", ")}"))
+
+    // use reduce by key, the preferred way
+    cached
+      .sortByKey()
+      .reduceByKey((a, b) => s"$a, $b")
+      .foreach(t => println(f"${t._1}%32s: ${t._2}"))
   }
 }
