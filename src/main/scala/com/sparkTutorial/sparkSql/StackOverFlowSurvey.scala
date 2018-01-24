@@ -1,7 +1,7 @@
 package com.sparkTutorial.sparkSql
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, DataFrameReader, RelationalGroupedDataset, SparkSession}
 
 object StackOverFlowSurvey {
 
@@ -14,9 +14,9 @@ object StackOverFlowSurvey {
     Logger.getLogger("org").setLevel(Level.ERROR)
     val session = SparkSession.builder().appName("StackOverFlowSurvey").master("local[1]").getOrCreate()
 
-    val dataFrameReader = session.read
+    val dataFrameReader: DataFrameReader = session.read
 
-    val responses = dataFrameReader
+    val responses: DataFrame = dataFrameReader
       .option("header", "true")
       .option("inferSchema", value = true)
       .csv("in/2016-stack-overflow-survey-responses.csv")
@@ -24,7 +24,7 @@ object StackOverFlowSurvey {
     System.out.println("=== Print out schema ===")
     responses.printSchema()
 
-    val responseWithSelectedColumns = responses.select("country", "occupation", AGE_MIDPOINT, SALARY_MIDPOINT)
+    val responseWithSelectedColumns: DataFrame = responses.select("country", "occupation", AGE_MIDPOINT, SALARY_MIDPOINT)
 
     System.out.println("=== Print the selected columns of the table ===")
     responseWithSelectedColumns.show()
@@ -33,7 +33,7 @@ object StackOverFlowSurvey {
     responseWithSelectedColumns.filter(responseWithSelectedColumns.col("country").===("Afghanistan")).show()
 
     System.out.println("=== Print the count of occupations ===")
-    val groupedDataset = responseWithSelectedColumns.groupBy("occupation")
+    val groupedDataset: RelationalGroupedDataset = responseWithSelectedColumns.groupBy("occupation")
     groupedDataset.count().show()
 
     System.out.println("=== Print records with average mid age less than 20 ===")
@@ -43,10 +43,10 @@ object StackOverFlowSurvey {
     responseWithSelectedColumns.orderBy(responseWithSelectedColumns.col(SALARY_MIDPOINT).desc).show()
 
     System.out.println("=== Group by country and aggregate by average salary middle point ===")
-    val datasetGroupByCountry = responseWithSelectedColumns.groupBy("country")
+    val datasetGroupByCountry: RelationalGroupedDataset = responseWithSelectedColumns.groupBy("country")
     datasetGroupByCountry.avg(SALARY_MIDPOINT).show()
 
-    val responseWithSalaryBucket = responses.withColumn(SALARY_MIDPOINT_BUCKET,
+    val responseWithSalaryBucket: DataFrame = responses.withColumn(SALARY_MIDPOINT_BUCKET,
       responses.col(SALARY_MIDPOINT).divide(20000).cast("integer").multiply(20000))
 
     System.out.println("=== With salary bucket column ===")
